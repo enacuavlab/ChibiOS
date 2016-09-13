@@ -134,7 +134,7 @@ void hal_lld_init(void) {
   /* The SRAM2 bank can optionally made a non cache-able area for use by
      DMA engines.*/
   mpuConfigureRegion(MPU_REGION_7,
-                     0x2004C000U,
+                     SRAM2_BASE,
                      MPU_RASR_ATTR_AP_RW_RW |
                      MPU_RASR_ATTR_NON_CACHEABLE |
                      MPU_RASR_SIZE_16K |
@@ -163,7 +163,13 @@ void stm32_clock_init(void) {
 
 #if !STM32_NO_INIT
   /* PWR clock enable.*/
+#if defined(HAL_USE_RTC) && \
+  (defined(STM32F765xx) || defined(STM32F767xx) || defined(STM32F769xx) || \
+  defined(STM32F777xx) ||defined (STM32F779xx))
+  RCC->APB1ENR = (RCC_APB1ENR_PWREN|RCC_APB1ENR_RTCEN);
+#else
   RCC->APB1ENR = RCC_APB1ENR_PWREN;
+#endif
 
   /* PWR initialization.*/
   PWR->CR1 = STM32_VOS;
